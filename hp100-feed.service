@@ -1,0 +1,18 @@
+# Install: sudo cp hp100-feed.service /etc/systemd/system/
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable --now hp100-feed.service
+# Logs:    journalctl -u hp100-feed.service -f
+[Unit]
+Description=HP100 Live Feed Publisher
+After=network.target airmonitor.service
+
+[Service]
+Type=simple
+User=vps_home_1
+WorkingDirectory=/home/vps_home_1/projects/hp100-live-feed
+ExecStart=/usr/bin/python3 /home/vps_home_1/projects/hp100-live-feed/update_feed.py --loop
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
