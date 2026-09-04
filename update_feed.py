@@ -29,8 +29,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 AIRMONITOR_URL = "http://localhost:8080/current"
+AIRMONITOR_HISTORY_URL = "http://localhost:8080/history?hours=24"
 REPO_DIR = Path(__file__).resolve().parent
 OUTPUT_FILE = REPO_DIR / "latest.json"
+HISTORY_FILE = REPO_DIR / "history.json"
 UPDATE_INTERVAL_SECONDS = 300
 
 BOT_NAME = "hp100-bot"
@@ -71,6 +73,24 @@ def build_payload(raw: dict) -> dict:
     return payload
 
 
+def fetch_history() -> list:
+    # airmonitor_vps.py already buckets/averages this (15-min groups over
+    # 24h) from its own SQLite history — reuse it instead of accumulating
+    # a second, independent history buffer in this script.
+    with urllib.request.urlopen(AIRMONITOR_HISTORY_URL, timeout=10) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def build_history_payload(rows: list) -> list:
+    history = []
+    for row in rows:
+        entry = {"timestamp": row.get("timestamp")}
+        for src_key, out_key in FIELD_MAP.items():
+            entry[out_key] = row.get(src_key)
+        history.append(entry)
+    return history
+
+
 def run_git(*args: str) -> subprocess.CompletedProcess:
     import os
 
@@ -84,10 +104,11 @@ def run_git(*args: str) -> subprocess.CompletedProcess:
     )
 
 
-def commit_and_push(payload: dict) -> None:
+def commit_and_push(payload: dict, history_payload: list) -> None:
     OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    HISTORY_FILE.write_text(json.dumps(history_payload, ensure_ascii=False, indent=2) + "\n")
 
-    status = run_git("status", "--porcelain", "--", "latest.json")
+    status = run_git("status", "--porcelain", "--", "latest.json", "history.json")
     if status.returncode != 0:
         print(f"git status failed: {status.stderr}", file=sys.stderr)
         return
@@ -95,7 +116,7 @@ def commit_and_push(payload: dict) -> None:
         print("No change in reading, skipping commit.")
         return
 
-    run_git("add", "latest.json")
+    run_git("add", "latest.json", "history.json")
     commit = run_git("commit", "-m", f"Update reading: {payload}")
     if commit.returncode != 0:
         print(f"git commit failed: {commit.stderr}", file=sys.stderr)
@@ -111,11 +132,13 @@ def commit_and_push(payload: dict) -> None:
 def tick() -> None:
     try:
         raw = fetch_current()
+        history_rows = fetch_history()
     except Exception as exc:  # noqa: BLE001 — best-effort poller, log and retry next tick
         print(f"Failed to fetch sensor data: {exc}", file=sys.stderr)
         return
     payload = build_payload(raw)
-    commit_and_push(payload)
+    history_payload = build_history_payload(history_rows)
+    commit_and_push(payload, history_payload)
 
 
 def main() -> None:
