@@ -102,6 +102,13 @@
     "co2": 777,
     "temperature": 19.84,
     "humidity": 59.85,
-    "dust": 16.0
+    "dust": 15.7
+  },
+  {
+    "timestamp": "2026-09-14 10:30",
+    "co2": 770,
+    "temperature": 19.79,
+    "humidity": 59.84,
+    "dust": 14.0
   }
 ]
