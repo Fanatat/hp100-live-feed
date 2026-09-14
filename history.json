@@ -478,8 +478,8 @@
   {
     "timestamp": "2026-09-14 23:45",
     "co2": 718,
-    "temperature": 25.2,
+    "temperature": 25.22,
     "humidity": 51.0,
-    "dust": 3.8
+    "dust": 3.6
   }
 ]
