@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "timestamp": "2026-09-14 06:45",
+    "co2": 738,
+    "temperature": 20.5,
+    "humidity": 58.09,
+    "dust": null
+  }
+]
