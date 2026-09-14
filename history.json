@@ -453,5 +453,12 @@
     "temperature": 24.93,
     "humidity": 50.71,
     "dust": 4.0
+  },
+  {
+    "timestamp": "2026-09-14 23:00",
+    "co2": 710,
+    "temperature": 24.99,
+    "humidity": 50.66,
+    "dust": 4.0
   }
 ]
