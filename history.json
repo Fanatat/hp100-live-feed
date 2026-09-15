@@ -498,9 +498,16 @@
   },
   {
     "timestamp": "2026-09-15 00:30",
-    "co2": 726,
-    "temperature": 25.36,
-    "humidity": 51.18,
+    "co2": 728,
+    "temperature": 25.38,
+    "humidity": 51.16,
+    "dust": 4.0
+  },
+  {
+    "timestamp": "2026-09-15 00:45",
+    "co2": 740,
+    "temperature": 25.43,
+    "humidity": 51.06,
     "dust": 4.0
   }
 ]
