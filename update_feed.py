@@ -34,6 +34,8 @@ REPO_DIR = Path(__file__).resolve().parent
 OUTPUT_FILE = REPO_DIR / "latest.json"
 HISTORY_FILE = REPO_DIR / "history.json"
 UPDATE_INTERVAL_SECONDS = 300
+# A hung git (network stall, credential prompt) must not freeze --loop forever.
+GIT_TIMEOUT_SECONDS = 120
 
 BOT_NAME = "hp100-bot"
 BOT_EMAIL = "hp100-bot@localhost"
@@ -99,9 +101,16 @@ def run_git(*args: str) -> subprocess.CompletedProcess:
     env["GIT_AUTHOR_EMAIL"] = BOT_EMAIL
     env["GIT_COMMITTER_NAME"] = BOT_NAME
     env["GIT_COMMITTER_EMAIL"] = BOT_EMAIL
-    return subprocess.run(
-        ["git", *args], cwd=REPO_DIR, env=env, capture_output=True, text=True
-    )
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    try:
+        return subprocess.run(
+            ["git", *args], cwd=REPO_DIR, env=env, capture_output=True, text=True,
+            timeout=GIT_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(
+            ["git", *args], 124, "", f"timed out after {GIT_TIMEOUT_SECONDS}s"
+        )
 
 
 def commit_and_push(payload: dict, history_payload: list) -> None:
@@ -124,8 +133,19 @@ def commit_and_push(payload: dict, history_payload: list) -> None:
 
     push = run_git("push")
     if push.returncode != 0:
-        print(f"git push failed: {push.stderr}", file=sys.stderr)
-        return
+        # Most likely the remote moved (e.g. README edited on github.com) and the
+        # push is rejected as non-fast-forward — that silently froze the feed
+        # 2026-09-20..25. Merge the remote in, keeping our data on conflict.
+        print(f"git push failed, merging remote and retrying: {push.stderr}", file=sys.stderr)
+        pull = run_git("pull", "--no-rebase", "--no-edit", "-X", "ours")
+        if pull.returncode != 0:
+            print(f"git pull failed: {pull.stderr}", file=sys.stderr)
+            run_git("merge", "--abort")
+            return
+        push = run_git("push")
+        if push.returncode != 0:
+            print(f"git push failed again: {push.stderr}", file=sys.stderr)
+            return
     print(f"Pushed update: {payload}")
 
 
