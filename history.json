@@ -1,17 +1,10 @@
 [
   {
-    "timestamp": "2026-09-25 01:45",
-    "co2": 441,
-    "temperature": 27.48,
-    "humidity": 46.84,
-    "dust": null
-  },
-  {
     "timestamp": "2026-09-25 02:00",
-    "co2": 446,
-    "temperature": 27.48,
-    "humidity": 46.8,
-    "dust": 5.2
+    "co2": 445,
+    "temperature": 27.47,
+    "humidity": 46.82,
+    "dust": 5.5
   },
   {
     "timestamp": "2026-09-25 02:15",
@@ -666,9 +659,16 @@
   },
   {
     "timestamp": "2026-09-26 01:45",
-    "co2": 556,
-    "temperature": 26.63,
-    "humidity": 44.3,
+    "co2": 544,
+    "temperature": 26.61,
+    "humidity": 44.2,
     "dust": 7.3
+  },
+  {
+    "timestamp": "2026-09-26 02:00",
+    "co2": 453,
+    "temperature": 26.37,
+    "humidity": 43.18,
+    "dust": 7.7
   }
 ]
