@@ -1,10 +1,10 @@
 [
   {
     "timestamp": "2026-09-26 21:15",
-    "co2": 748,
-    "temperature": 24.11,
-    "humidity": 51.46,
-    "dust": 11.4
+    "co2": 769,
+    "temperature": 24.1,
+    "humidity": 51.54,
+    "dust": 11.3
   },
   {
     "timestamp": "2026-09-26 21:30",
@@ -673,9 +673,9 @@
   },
   {
     "timestamp": "2026-09-27 21:15",
-    "co2": 1131,
-    "temperature": 23.38,
-    "humidity": 56.1,
-    "dust": 13.8
+    "co2": 1143,
+    "temperature": 23.37,
+    "humidity": 56.16,
+    "dust": 13.1
   }
 ]
